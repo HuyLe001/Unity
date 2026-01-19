@@ -10,8 +10,8 @@ public class PlayerController : MonoBehaviour
 
     [Header("Checks Settings")]
     public Transform groundCheck;
-    public Transform ceilingCheck; // MỚI: Kéo Empty Object trên đầu vào đây
-    public float checkRadius = 0.3f;
+    public Transform ceilingCheck;
+    public float checkRadius = 0.2f; // Thu nhỏ bán kính để nhạy hơn
     public LayerMask groundLayer;
 
     [Header("Double Jump Settings")]
@@ -23,17 +23,20 @@ public class PlayerController : MonoBehaviour
     private Vector3 originalScale;
     private bool isCrouching = false;
 
+    private bool facingRight = true;
     private Rigidbody2D rb;
     private CapsuleCollider2D playerCollider;
     private Vector2 originalColliderSize;
     private Vector2 originalColliderOffset;
     private bool isGrounded;
     private float moveInput;
+    private Animator anim;
 
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
         playerCollider = GetComponent<CapsuleCollider2D>();
+        anim = GetComponent<Animator>();
 
         originalScale = transform.localScale;
         originalColliderSize = playerCollider.size;
@@ -46,18 +49,30 @@ public class PlayerController : MonoBehaviour
 
     void Update()
     {
+        // 1. Kiểm tra mặt đất
         isGrounded = Physics2D.OverlapCircle(groundCheck.position, checkRadius, groundLayer);
+
+        // 2. Cập nhật Animation Nhảy (SỬA LOGIC Ở ĐÂY)
+        // Chỉ lộn khi thực sự rời đất VÀ không đang ngồi
+        bool shouldJumpAnim = !isGrounded && !isCrouching;
+        anim.SetBool("isJumping", shouldJumpAnim);
+
+        // 3. Cập nhật Animation Chạy
         moveInput = Input.GetAxisRaw("Horizontal");
+        anim.SetFloat("Speed", Mathf.Abs(moveInput));
 
-        // MỚI: Kiểm tra xem trên đầu có bị vướng gạch không
+        if (moveInput > 0 && !facingRight) Flip();
+        else if (moveInput < 0 && facingRight) Flip();
+
+        HandleJump();
+        HandleCrouch();
+    }
+
+    void HandleJump()
+    {
         bool ceilingAbove = Physics2D.OverlapCircle(ceilingCheck.position, checkRadius, groundLayer);
+        if (isGrounded) extraJumps = extraJumpsValue;
 
-        if (isGrounded)
-        {
-            extraJumps = extraJumpsValue;
-        }
-
-        // XỬ LÝ NHẢY
         if (Input.GetButtonDown("Jump") && !isCrouching && !ceilingAbove)
         {
             if (isGrounded)
@@ -70,8 +85,11 @@ public class PlayerController : MonoBehaviour
                 extraJumps--;
             }
         }
+    }
 
-        // XỬ LÝ NGỒI (Đã cập nhật logic tự giữ tư thế khi vướng trần)
+    void HandleCrouch()
+    {
+        bool ceilingAbove = Physics2D.OverlapCircle(ceilingCheck.position, checkRadius, groundLayer);
         bool crouchInput = Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.DownArrow);
 
         if (crouchInput || ceilingAbove)
@@ -79,7 +97,7 @@ public class PlayerController : MonoBehaviour
             if (!isCrouching)
             {
                 isCrouching = true;
-                transform.localScale = new Vector3(originalScale.x, originalScale.y * crouchScaleY, originalScale.z);
+                UpdateScale();
                 playerCollider.size = new Vector2(originalColliderSize.x, originalColliderSize.y * crouchScaleY);
                 float newOffsetY = originalColliderOffset.y - (originalColliderSize.y * (1 - crouchScaleY) / 2f);
                 playerCollider.offset = new Vector2(originalColliderOffset.x, newOffsetY);
@@ -87,9 +105,8 @@ public class PlayerController : MonoBehaviour
         }
         else if (isCrouching && !ceilingAbove && !crouchInput)
         {
-            // Chỉ đứng dậy khi thả phím VÀ trên đầu trống trải
             isCrouching = false;
-            transform.localScale = originalScale;
+            UpdateScale();
             playerCollider.size = originalColliderSize;
             playerCollider.offset = originalColliderOffset;
         }
@@ -100,5 +117,18 @@ public class PlayerController : MonoBehaviour
         float targetSpeed = moveInput * (isCrouching ? crouchSpeed : moveSpeed);
         if (!isGrounded) targetSpeed *= airControl;
         rb.linearVelocity = new Vector2(targetSpeed, rb.linearVelocity.y);
+    }
+
+    void Flip()
+    {
+        facingRight = !facingRight;
+        UpdateScale();
+    }
+
+    void UpdateScale()
+    {
+        float x = facingRight ? originalScale.x : -originalScale.x;
+        float y = isCrouching ? originalScale.y * crouchScaleY : originalScale.y;
+        transform.localScale = new Vector3(x, y, originalScale.z);
     }
 }

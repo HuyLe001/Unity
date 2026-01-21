@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
@@ -8,10 +9,17 @@ public class PlayerController : MonoBehaviour
     public float crouchSpeed = 5f;
     public float airControl = 1.2f;
 
+    [Header("Dash Settings")]
+    public float dashPower = 30f;      // Lực lướt
+    public float dashTime = 0.2f;       // Thời gian lướt
+    public float dashCooldown = 0.5f;   // Giảm xuống để lướt sướng hơn
+    private bool canDash = true;
+    private bool isDashing = false;
+
     [Header("Checks Settings")]
     public Transform groundCheck;
     public Transform ceilingCheck;
-    public float checkRadius = 0.2f; // Thu nhỏ bán kính để nhạy hơn
+    public float checkRadius = 0.2f;
     public LayerMask groundLayer;
 
     [Header("Double Jump Settings")]
@@ -31,6 +39,7 @@ public class PlayerController : MonoBehaviour
     private bool isGrounded;
     private float moveInput;
     private Animator anim;
+    private float originalGravity;
 
     void Start()
     {
@@ -45,19 +54,21 @@ public class PlayerController : MonoBehaviour
         rb.freezeRotation = true;
         rb.collisionDetectionMode = CollisionDetectionMode2D.Continuous;
         rb.gravityScale = 4f;
+        originalGravity = rb.gravityScale;
     }
 
     void Update()
     {
-        // 1. Kiểm tra mặt đất
+        // 1. Khi đang lướt, chúng ta vẫn cho phép kiểm tra Ground để Reset Jump nhưng không nhận Input khác
         isGrounded = Physics2D.OverlapCircle(groundCheck.position, checkRadius, groundLayer);
+        if (isGrounded) extraJumps = extraJumpsValue;
 
-        // 2. Cập nhật Animation Nhảy (SỬA LOGIC Ở ĐÂY)
-        // Chỉ lộn khi thực sự rời đất VÀ không đang ngồi
+        if (isDashing) return;
+
+        // 2. Animations
         bool shouldJumpAnim = !isGrounded && !isCrouching;
         anim.SetBool("isJumping", shouldJumpAnim);
 
-        // 3. Cập nhật Animation Chạy
         moveInput = Input.GetAxisRaw("Horizontal");
         anim.SetFloat("Speed", Mathf.Abs(moveInput));
 
@@ -66,12 +77,56 @@ public class PlayerController : MonoBehaviour
 
         HandleJump();
         HandleCrouch();
+
+        // 3. Dash Input
+        if (Input.GetKeyDown(KeyCode.LeftShift) && canDash && !isCrouching)
+        {
+            StartCoroutine(PerformDash());
+        }
+    }
+
+    void FixedUpdate()
+    {
+        if (isDashing) return;
+
+        float targetSpeed = moveInput * (isCrouching ? crouchSpeed : moveSpeed);
+        if (!isGrounded) targetSpeed *= airControl;
+
+        // Cập nhật vận tốc di chuyển mượt mà
+        rb.linearVelocity = new Vector2(targetSpeed, rb.linearVelocity.y);
+    }
+
+    private IEnumerator PerformDash()
+    {
+        canDash = false;
+        isDashing = true;
+
+        // Lưu hướng lướt hiện tại
+        float direction = facingRight ? 1 : -1;
+
+        // Tắt trọng lực để lướt ngang tắp trên không
+        rb.gravityScale = 0f;
+
+        // Thực hiện cú lướt
+        rb.linearVelocity = new Vector2(direction * dashPower, 0f);
+
+        yield return new WaitForSeconds(dashTime);
+
+        // KẾT THÚC LƯỚT: Đây là phần sửa lỗi khựng
+        rb.gravityScale = originalGravity;
+
+        // Gán lại vận tốc bằng moveSpeed để nhân vật tiếp tục chạy theo đà, thay vì đứng yên
+        rb.linearVelocity = new Vector2(direction * moveSpeed, rb.linearVelocity.y);
+
+        isDashing = false;
+
+        yield return new WaitForSeconds(dashCooldown);
+        canDash = true;
     }
 
     void HandleJump()
     {
         bool ceilingAbove = Physics2D.OverlapCircle(ceilingCheck.position, checkRadius, groundLayer);
-        if (isGrounded) extraJumps = extraJumpsValue;
 
         if (Input.GetButtonDown("Jump") && !isCrouching && !ceilingAbove)
         {
@@ -110,13 +165,6 @@ public class PlayerController : MonoBehaviour
             playerCollider.size = originalColliderSize;
             playerCollider.offset = originalColliderOffset;
         }
-    }
-
-    void FixedUpdate()
-    {
-        float targetSpeed = moveInput * (isCrouching ? crouchSpeed : moveSpeed);
-        if (!isGrounded) targetSpeed *= airControl;
-        rb.linearVelocity = new Vector2(targetSpeed, rb.linearVelocity.y);
     }
 
     void Flip()

@@ -316,7 +316,7 @@ BoxCollider2D:
   m_Enabled: 1
   serializedVersion: 3
   m_Density: 1
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 6200000, guid: a90f2c9fd3c1b8c4cab6e4d5a65e81d0, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -440,6 +440,9 @@ MonoBehaviour:
   jumpForce: 15
   crouchSpeed: 5
   airControl: 1.2
+  dashPower: 30
+  dashTime: 0.2
+  dashCooldown: 1
   groundCheck: {fileID: 2034946211}
   ceilingCheck: {fileID: 1382221050}
   checkRadius: 0.2

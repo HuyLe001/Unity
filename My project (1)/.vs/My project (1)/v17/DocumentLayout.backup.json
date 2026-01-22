@@ -3,6 +3,10 @@
   "WorkspaceRootPath": "D:\\2D_Game\\My project (1)\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\2D_Game\\My project (1)\\Assets\\_Script\\NPC_Talk.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Assets\\_Script\\NPC_Talk.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\2D_Game\\My project (1)\\Assets\\_Script\\PlayerController.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Assets\\_Script\\PlayerController.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
@@ -31,6 +35,19 @@
             {
               "$type": "Document",
               "DocumentIndex": 0,
+              "Title": "NPC_Talk.cs",
+              "DocumentMoniker": "D:\\2D_Game\\My project (1)\\Assets\\_Script\\NPC_Talk.cs",
+              "RelativeDocumentMoniker": "Assets\\_Script\\NPC_Talk.cs",
+              "ToolTip": "D:\\2D_Game\\My project (1)\\Assets\\_Script\\NPC_Talk.cs",
+              "RelativeToolTip": "Assets\\_Script\\NPC_Talk.cs",
+              "ViewState": "AgIAACIAAAAAAAAAAAAowD0AAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-01-21T11:49:18.624Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
               "Title": "PlayerController.cs",
               "DocumentMoniker": "D:\\2D_Game\\My project (1)\\Assets\\_Script\\PlayerController.cs",
               "RelativeDocumentMoniker": "Assets\\_Script\\PlayerController.cs",
@@ -38,12 +55,11 @@
               "RelativeToolTip": "Assets\\_Script\\PlayerController.cs",
               "ViewState": "AgIAAJoAAAAAAAAAAAAowLUAAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-01-14T14:16:47.889Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-01-14T14:16:47.889Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 2,
               "Title": "HelloWorld.cs",
               "DocumentMoniker": "D:\\2D_Game\\My project (1)\\Assets\\_Script\\HelloWorld.cs",
               "RelativeDocumentMoniker": "Assets\\_Script\\HelloWorld.cs",
